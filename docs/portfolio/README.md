@@ -19,6 +19,8 @@
 
 Built and tested a React and TypeScript digital exhibition featuring procedural Three.js geometry, GLSL material transitions, interactive SVG typography, and a keyboard-accessible gallery. Configured continuous integration and static delivery through GitHub Actions.
 
+[Watch the recorded walkthrough](walkthrough.webm)
+
 ## Gallery
 
 - [Arrival](arrival.jpg)
