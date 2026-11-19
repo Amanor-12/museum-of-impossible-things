@@ -2,6 +2,8 @@
 
 **An exhibition for things that refuse to exist.**
 
+[Visit the live museum](https://amanor-12.github.io/museum-of-impossible-things/)
+
 ![The museum entrance with a suspended metallic knot and the title Reality is a suggestion.](docs/portfolio/arrival.jpg)
 
 A browser-native digital museum in three acts. Visitors cross a graphite threshold, change the state of a suspended sculpture, give language a temporary physical form, and fold an architectural passage around its vanishing point.
@@ -41,7 +43,7 @@ The Playwright suite runs against the production preview by default. Set `MUSEUM
 - **React, TypeScript, and Vite** provide the interface, typed room catalog, and static production build. The exhibit index uses a native modal dialog for keyboard focus and Escape support.
 - **Three.js, React Three Fiber, and Drei** render a lazily loaded WebGL gallery. The sculpture uses three custom indexed ribbon meshes and GLSL that drives coherent vertex displacement, analytic reflections, Fresnel edges, and alpha transitions. The passages use stacked polygonal portals with interior surfaces, staggered breathing, and constrained camera controls.
 - **GSAP and @gsap/react** choreograph scene transitions and label reveals. The typography exhibit uses SVG transforms, horizontal clipping masks, and turbulence displacement with accessible HTML controls.
-- **Rendering costs** are limited to one active scene, with DPR caps, lower ribbon resolution on smaller canvases, and a suspended frame loop in hidden tabs. Cached images from the actual exhibits provide gallery previews and WebGL fallbacks. The lazy Three.js chunk is the largest part of the build.
+- **Rendering costs** are limited to one active scene, with an adaptive DPR cap, lower ribbon resolution on smaller canvases, and a suspended frame loop in hidden tabs. Cached images from the actual exhibits provide gallery previews and WebGL fallbacks. The lazy Three.js chunk is the largest part of the build.
 
 `src/App.tsx` owns navigation and input. `src/experience/catalog.ts` contains shared exhibit definitions. `GalleryCanvas.tsx` contains the sculpture, passage geometry, shaders, and cameras. `WordArt.tsx` contains the typography artwork. `tests/` covers routing, interactions, input, responsive navigation, and fallback asset loading.
 

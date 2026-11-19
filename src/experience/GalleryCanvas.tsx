@@ -161,13 +161,32 @@ function Architecture({ motion, gesture, depth, folded, room }: SceneProps) {
   </>
 }
 
+// Use a sustained frame-time sample so short stalls do not change pixel density.
+function RenderBudget({ maxDpr }: { maxDpr: number }) {
+  const sample = useRef({ seconds: 0, frames: 0, primed: false })
+  const setDpr = useThree(state => state.setDpr)
+  useFrame(({ viewport }, delta) => {
+    const window = sample.current
+    if (delta > .25) return
+    window.seconds += delta
+    window.frames++
+    if (window.seconds < 1.8) return
+    const fps = window.frames / window.seconds
+    if (window.primed && fps < 43 && viewport.dpr > 1) setDpr(Math.max(1, viewport.dpr - .25))
+    if (window.primed && fps > 57 && viewport.dpr < maxDpr) setDpr(Math.min(maxDpr, viewport.dpr + .125))
+    window.seconds = 0
+    window.frames = 0
+    window.primed = true
+  })
+  return null
+}
 export default function GalleryCanvas(props: SceneProps) {
   const architectural = props.room === 'threshold' || props.room === 'room'
   const portrait = matchMedia('(max-width: 680px)').matches
-  return <Canvas key={String(architectural)} frameloop={props.visible ? 'always' : 'never'} dpr={[1, portrait ? 1.25 : 1.6]} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}>
+  const maxDpr = Math.max(1, Math.min(devicePixelRatio, portrait ? 1.25 : 1.6))
+  return <Canvas key={String(architectural)} frameloop={props.visible ? 'always' : 'never'} dpr={maxDpr} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}>
+    <RenderBudget maxDpr={maxDpr} />
     <PerspectiveCamera makeDefault position={[0, 0, architectural ? 2.5 : 8.4]} fov={architectural ? 57 : portrait ? 42 : 38} near={.05} far={75} />
     {architectural ? <Architecture {...props} /> : <Sculpture {...props} />}
   </Canvas>
 }
-
-

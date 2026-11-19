@@ -27,3 +27,7 @@ Built and tested a React and TypeScript digital exhibition featuring procedural 
 - [The Room That Breathes](architecture.jpg)
 - [Exhibition index](index.jpg)
 - [Mobile arrival](mobile.jpg)
+- [The threshold](threshold.jpg)
+- [Fluid state](fluid.jpg)
+- [Spectral state](spectral.jpg)
+- [Closing sequence](closing.jpg)

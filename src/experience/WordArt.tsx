@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent } from 'react'
 import type { Behavior } from './catalog'
 
 export default function WordArt({ phrase, behavior, motion }: { phrase: string; behavior: Behavior; motion: boolean }) {
   const [target, setTarget] = useState({ x: 0, y: 0 })
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  useEffect(() => () => clearTimeout(timeout.current), [])
   const activate = (x: number, y: number) => {
     clearTimeout(timeout.current)
     setTarget({ x, y })

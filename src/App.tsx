@@ -77,6 +77,7 @@ export default function App() {
 
   useEffect(() => {
     if (navigating.current) {
+      window.scrollTo(0, 0)
       heading.current?.focus({ preventScroll: true })
       navigating.current = false
     }
@@ -147,7 +148,7 @@ export default function App() {
             gesture.current.aimY = 0
           }} onKeyDown={keyboard}>
           {capable ? <RenderBoundary fallback={fallback}><Suspense fallback={fallback}>
-            <GalleryCanvas room={room} material={arrival ? 'Solid' : room === 'closing' ? 'Spectral' : material} folded={folded && room === 'room'} depth={room === 'room' ? depth : 0} motion={motion && !indexOpen} gesture={gesture} visible={visible} />
+            <GalleryCanvas room={room} material={arrival ? 'Solid' : room === 'closing' ? 'Spectral' : material} folded={folded && room === 'room'} depth={room === 'room' ? depth : 0} motion={motion && !indexOpen} gesture={gesture} visible={visible && !indexOpen} />
           </Suspense></RenderBoundary> : fallback}
         </div>}
       <div className="scene-copy" key={room}>
@@ -174,7 +175,7 @@ export default function App() {
         {room === 'closing' && <div className="closing-actions"><button className="primary" onClick={() => go('arrival')}>Return to entrance <span aria-hidden="true">↗</span></button><a href="https://github.com/Amanor-12/museum-of-impossible-things">Project credits</a></div>}
       </div>
       {current.hint && <span className="art-caption"><span aria-hidden="true">◎</span> {capable || room === 'words' ? current.hint : 'Static artwork preview'}</span>}
-      <div className="plate-number" aria-hidden="true">{current.number} / 03</div>
+      <div className="plate-number" aria-hidden="true">{room === 'closing' ? 'END OF VISIT' : current.number + ' / 03'}</div>
     </main>
     <footer className="wayfinding">
       <button className="motion" aria-pressed={motion} onClick={toggleMotion}><span className={motion ? 'signal' : 'signal off'} />Motion {motion ? 'on' : 'off'}</button>
@@ -195,6 +196,3 @@ export default function App() {
     </dialog>
   </>
 }
-
-
-
