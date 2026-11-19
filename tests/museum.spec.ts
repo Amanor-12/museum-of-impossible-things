@@ -4,7 +4,7 @@ test('real-time arrival, threshold and sculpture controls', async ({ page }) => 
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
-  await page.goto('./')
+  await page.goto('./?archive')
   await expect(page.getByRole('heading', { name: 'Reality is a suggestion.' })).toBeVisible()
   await expect(page.locator('.gallery-art canvas')).toBeVisible()
   await page.getByRole('button', { name: 'Enter the impossible' }).click()
@@ -32,7 +32,7 @@ test('real-time arrival, threshold and sculpture controls', async ({ page }) => 
 })
 
 test('typography accepts text through the keyboard and resets', async ({ page }) => {
-  await page.goto('./#words')
+  await page.goto('./?archive#words')
   const input = page.getByLabel('Your phrase')
   await input.fill('<b>WORDS</b>')
   await input.press('Enter')
@@ -51,7 +51,7 @@ test('typography accepts text through the keyboard and resets', async ({ page })
 
 test('index, architecture and exit work in portrait and landscape', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('./#room')
+  await page.goto('./?archive#room')
   await expect(page.locator('.gallery-art canvas')).toBeVisible()
   await expect(page.getByRole('slider', { name: 'The seam' })).toBeInViewport()
   const depth = page.getByRole('slider', { name: 'Passage depth' })
@@ -79,7 +79,7 @@ test('index, architecture and exit work in portrait and landscape', async ({ pag
 })
 
 test('non-WebGL visitors receive the artwork and can browse', async ({ page }) => {
-  await page.goto('./?flat')
+  await page.goto('./?archive&flat')
   await expect(page.locator('.gallery-art canvas')).toHaveCount(0)
   const fallback = page.getByRole('img', { name: /three polished metal ribbons/i })
   await expect(fallback).toBeVisible()
@@ -90,7 +90,7 @@ test('non-WebGL visitors receive the artwork and can browse', async ({ page }) =
 })
 
 test('the same seam passes through light, words, and architecture', async ({ page }) => {
-  await page.goto('./?flat#threshold')
+  await page.goto('./?archive&flat#threshold')
   const seam = page.getByRole('slider', { name: 'The seam' })
   await expect(seam).toHaveAttribute('aria-valuetext', 'Dormant')
   await seam.fill('52')

@@ -2,21 +2,19 @@
 
 **An exhibition for things that refuse to exist.**
 
-[Visit the live museum](https://amanor-12.github.io/museum-of-impossible-things/)
+![A blade of warm light falls through a fault in the graphite chamber.](docs/portfolio/threshold-v2.jpg)
 
-![The museum entrance with a suspended metallic knot and the title Reality is a suggestion.](docs/portfolio/arrival.jpg)
+[Visit the live museum](https://amanor-12.github.io/museum-of-impossible-things/) · [Portfolio gallery](docs/portfolio/README.md) · [Creative research](docs/creative-research.md)
 
-A browser-native digital museum in three acts. Visitors cross a graphite threshold, change the state of a suspended sculpture, give language a temporary physical form, and fold an architectural passage around its vanishing point.
+Pull open a fault in a graphite wall. Cross it, relight an object, leave a sentence in the building, and turn gravity over. On the way out, download a print of your visit. One shared opening controls the parted walls, the alignment of the corridor, the angle of the suspended foil, and the displacement of the inscription.
 
-| Exhibition | Interaction |
-| --- | --- |
-| The Weight of Light | Drag or use arrow keys to turn the sculpture. Switch between Solid, Fluid, and Spectral, or reset its orientation. |
-| Words That Refuse to Stay Still | Submit a phrase, then move the pointer, tap, or press Enter on the artwork. Choose Elastic, Fragment, or Liquid. |
-| The Room That Breathes | Look around with a pointer or the arrow keys, move the passage depth slider, and fold the corridor. |
+## Engineering
 
-The Seam is a movable strain shared by the whole museum. Set it at the threshold and carry it into the sculpture, typography, and corridor. Clear it to restore the resting forms. [Read the 20-reference creative study](docs/creative-research.md).
+The primary experience uses React, TypeScript, Vite, and a small, purpose-built WebGL renderer. The scene is a signed distance field authored in GLSL. A single full-screen triangle drives camera rays through the room, refining hit positions as they approach surfaces. Procedural aggregate, grazing light, a narrow floor reflection, and fog distinguish cast concrete from the suspended foil without external texture downloads.
 
-The exhibition index offers direct access to the three works. Hash links support browser history and room bookmarks. The closing sequence links back to the entrance.
+The scene renderer draws in response to input, camera interpolation, viewport changes, and visibility changes. Moving frames use a smaller pixel budget, a shorter ray march, and cheaper surface shading. The renderer lowers the interactive budget further when frames arrive slowly and redraws a detailed still when motion settles. Input uses pointer capture on the fault itself, with arrow-key increments, Home and End, and a separate button for opening and crossing. Reduced motion removes camera tweening. The fallback uses genuine scene captures with movable CSS wall panels. The inscription uses live text with two clipped layers and an accessible announcement.
+
+The original three-exhibit version remains available as an [exhibition archive](https://amanor-12.github.io/museum-of-impossible-things/?archive). The archive loads Three.js, React Three Fiber, Drei, and GSAP only on that route. Its rooms retain material states, kinetic typography, and the folding corridor.
 
 ## Development
 
@@ -27,8 +25,6 @@ npm ci
 npm run dev
 ```
 
-Use `npm run build` and `npm run preview` to inspect the production bundle. The site is static and uses relative asset paths for GitHub Pages.
-
 ```sh
 npm run typecheck
 npm run lint
@@ -38,25 +34,14 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The Playwright suite runs against the production preview by default. Set `MUSEUM_TEST_URL` to test an existing deployment. The `?flat` query parameter forces the non-WebGL experience.
+The Playwright suite runs against the production preview. Set `MUSEUM_TEST_URL` to test a deployment. Use `?flat` for the non-WebGL experience. The site is static and uses relative asset paths for GitHub Pages.
 
-## Engineering
+- `src/threshold/` contains the primary experience, renderer, shader, and scene styling.
+- `src/MuseumArchive.tsx` and `src/experience/` contain the original three-exhibit experience.
+- `tests/` covers gesture and keyboard controls, browser history, material states, custom inscriptions, lighting and inversion, PNG export, navigation, mobile layout, and WebGL fallbacks.
 
-- **React, TypeScript, and Vite** provide the interface, typed room catalog, and static production build. The exhibit index uses a native modal dialog for keyboard focus and Escape support.
-- **Three.js, React Three Fiber, and Drei** render a lazily loaded WebGL gallery. The sculpture uses three custom indexed ribbon meshes and GLSL that drives coherent vertex displacement, analytic reflections, Fresnel edges, and alpha transitions. The passages use stacked polygonal portals with interior surfaces, staggered breathing, and constrained camera controls.
-- **GSAP and @gsap/react** choreograph scene transitions and label reveals. The typography exhibit uses SVG transforms, horizontal clipping masks, and turbulence displacement with accessible HTML controls.
-- **Rendering costs** are limited to one active scene, with an adaptive DPR cap, lower ribbon resolution on smaller canvases, and a suspended frame loop in hidden tabs. Cached images from the actual exhibits provide gallery previews and WebGL fallbacks. The lazy Three.js chunk is the largest part of the build.
-
-`src/App.tsx` owns navigation and input. `src/experience/catalog.ts` contains shared exhibit definitions. `GalleryCanvas.tsx` contains the sculpture, passage geometry, shaders, and cameras. `WordArt.tsx` contains the typography artwork. `tests/` covers routing, interactions, input, responsive navigation, and fallback asset loading.
-
-## Accessibility and limits
-
-Motion defaults to the system preference and can be changed from the footer. Headings receive focus on navigation. The spatial artwork and typography have keyboard controls and accessible descriptions. Static previews replace continuous 3D when WebGL 2 is unavailable. The fallback approximates material and room changes with image transforms.
-
-The exhibition is silent. Automated browser testing targets Chromium, including portrait and landscape layouts. Headless software rendering verifies functionality, while GPU performance on physical mobile devices remains unmeasured.
+The exhibition is silent. Browser verification targets Chromium desktop and mobile layouts. Physical-device GPU performance remains unmeasured.
 
 ## Credits
 
-The museum identity, artwork, geometry, shaders, and previews were created for this project. Bodoni Moda and Space Grotesk are distributed under the SIL Open Font License. Full notices are retained in [the font credits](docs/font-licenses). [Bodoni Moda](https://github.com/indestructible-type/Bodoni) · [Space Grotesk](https://github.com/floriankarsten/space-grotesk)
-
-[Portfolio notes and screenshots](docs/portfolio/README.md)
+The museum identity, artwork, geometry, shaders, and previews were created for this project. Instrument Serif, Space Grotesk, and Bodoni Moda are distributed under the SIL Open Font License. [Font notices](docs/font-licenses)

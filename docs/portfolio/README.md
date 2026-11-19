@@ -1,5 +1,20 @@
 # Portfolio notes
 
+## Current exhibition
+
+The visitor pulls a real-time fault open, moves through the same architecture, tests three lighting conditions, inverts the corridor, and leaves an inscription the building carries into the return shot. The exit generates a printable field record. Read the design and engineering comparisons in the [creative research](../creative-research.md).
+
+- [Threshold](threshold-v2.jpg)
+- [Displaced room](passage-v2.jpg)
+- [Inscription](inscription-v2.jpg)
+- [Inversion](inversion.jpg)
+- [Return](return-v2.jpg)
+- [Recorded walkthrough](threshold-walkthrough.webm)
+- [Example field record](field-record.png)
+- [Mobile threshold](threshold-phone.jpg)
+
+## First exhibition archive
+
 **The Museum of Impossible Things** is an interactive digital art exhibition that explores what happens when light takes on weight, words become matter, and architecture develops a pulse.
 
 ## Engineering decisions

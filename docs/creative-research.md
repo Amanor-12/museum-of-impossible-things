@@ -54,3 +54,27 @@ A Gaussian-windowed signed wave is the common rule. One set of constants supplie
 | Strong performance on ordinary hardware | The WebGL module is the largest initial artwork dependency. | The seam adds no downloads or new package. The existing adaptive DPR and single active scene remain in use. The typography still slices up to 12 SVG bands and the non-WebGL mode approximates 3D using image transforms. Physical-device GPU profiles and other browser engines remain unverified. |
 
 The release checks cover the shape and persistence of the simulated strain, keyboard travel and reset, room navigation, phrase rendering, desktop and mobile layouts, and fallback browsing. The portfolio gallery records the museum's own Chromium captures.
+
+## Second design pass · The opening
+
+The first Seam build made its strongest idea feel like a settings control. The new opening moves that gesture into the world itself, then carries the visitor through its consequence. This pass examined the following award entries and maker case studies. These observations are based on published material, not firsthand gameplay or device profiling.
+
+| Reference | What changed in the museum |
+| --- | --- |
+| **Terminal Industries** | Its award entry presents a disciplined industrial identity. I used one illuminated material accent and treated the graphic system as a tool for reading the architecture. [Awwwards entry](https://www.awwwards.com/sites/terminal-industries) |
+| **Canals** | The editorial sequence frames imagery in a way that gives each view room to register. The museum now uses different placements for the title, room label, inscription, and exit composition. [Awwwards entry](https://www.awwwards.com/sites/canals) |
+| **The Boat** | Distil explains how familiar graphic-novel framing establishes a rhythm before sequences break into motion. The new chamber similarly establishes a still first image, then reserves a continuous camera movement for the act of crossing. [Maker case study](https://www.distil.im/projects/the-boat) |
+| **ACME Experience** | Immersive Garden gives the heritage sequence a dedicated WebGL treatment in service of the story. The museum's camera now follows one coordinate space through all four movements, including the reverse view on the way out. [Maker case study](https://temporary-site.imm-g-prod.com/cases/acme-experience) |
+| **Of The Oak** | Lusion's technical account emphasizes a content-specific rendering pipeline. The new museum uses a scene-specific distance field that builds the two monoliths, repeated frames, cut foil, and surface textures directly in the shader. The renderer draws on demand. [Maker case study](https://lusion.co/projects/of_the_oak/) |
+
+The redesign changes the visual system as well as the camera. Instrument Serif gives headlines a narrow silhouette and Space Grotesk keeps directional labels readable. The palette comes from cast graphite, warm light and bone-colored typography. Bronze identifies the part of the building the visitor can move. A small mark made from two separated edges repeats on the wordmark and controls.
+
+The threshold retains the amount the visitor opened. That value shapes the cut, offsets the corridor, turns the foil and separates the inscription. The inscription uses two clipped layers of live text and remains available to assistive technology. The return faces the reverse side of the same break. In reduced motion, camera positions change immediately. The still-image fallback uses captures of the original renderer, then moves the two wall panels in CSS.
+
+The remaining artistic gap is in the final inscription. It reads as a graphic layer over the space. Projecting the text onto the actual geometry would give it stronger depth and lighting cues. The main scene's screen-space lighting is art directed rather than physically simulated. No physical-device performance or jury rating is claimed.
+
+## Third design pass · Light, gravity, and a field record
+
+The Displaced Room now has three lighting conditions on the same surface. The Inversion rolls the camera around the corridor's vanishing point while leaving the foil in world space. The exit combines the aperture, chosen light, orientation, and inscription into a 1200 × 1500 PNG. All print drawing happens on the visitor's device.
+
+The first ray-marched version spent the full still-image budget on drag, camera movement, and passive mouse movement. It now renders only in response to a scene change. During movement, it starts at 144,000 pixels, can reduce to 66,000 pixels as frame intervals rise, uses 60 rather than 112 march steps, and skips fine aggregate and volume lighting. Software rendering starts at 56,000 pixels and can fall to 44,000. Once motion stops, the renderer waits 120 ms, redraws a still at up to 470,000 pixels, and sleeps. These are workload caps, not a guarantee of a frame rate.
