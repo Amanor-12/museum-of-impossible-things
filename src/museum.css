@@ -144,3 +144,27 @@ fieldset button:hover, fieldset button[aria-pressed="true"], .outline[aria-press
 .fallback-light[data-material="Spectral"] { filter: sepia(.45) hue-rotate(130deg); opacity: .52; }
 .fallback-room[data-folded="true"] { transform: rotate(17deg) scale(1.25); }
 .preview-light { background-color: #101110; }
+
+#root:has(.seam-control) .stage { min-height: max(570px, calc(100svh - 227px)); }
+.stage-words { padding-block: clamp(48px, 5.5vh, 65px); }
+.seam-control { display: grid; grid-template-columns: auto minmax(120px, 240px) 1fr auto; gap: clamp(12px, 2.3vw, 34px); align-items: center; min-height: 73px; padding: .5rem var(--gutter); border-top: 1px solid var(--line); background: #151813; position: relative; z-index: 1; }
+.seam-control label { font-size: .84rem; font-weight: 650; white-space: nowrap; }
+.seam-control label span { font-size: 1.3rem; vertical-align: middle; color: var(--acid); padding-right: .35em; }
+.seam-input { display: grid; }
+.seam-input svg { display: block; width: 100%; height: 23px; fill: none; }
+.seam-input input { cursor: ew-resize; display: block; width: 100%; margin: 0; accent-color: var(--acid); min-height: 24px; }
+.seam-baseline { stroke: #ffffff34; stroke-width: 1; }
+.seam-trace { stroke: var(--acid); stroke-width: 1.2; }
+.seam-marker { stroke: var(--acid); stroke-opacity: .5; stroke-width: 1; stroke-dasharray: 2 3; }
+.seam-control p { color: #c1c5b8; margin: 0; font-size: .83rem; }
+.seam-reset { text-align: right; min-height: 44px; padding-inline: .25rem; font-size: .82rem; }
+.seam-reset:hover:not(:disabled) { color: var(--acid); }
+.seam-reset:disabled { opacity: .47; cursor: default; }
+@media (max-width: 680px) {
+  #root:has(.seam-control) .stage { min-height: 590px; }
+  .stage-words { padding-block: 305px 62px; }
+  .seam-control { position: sticky; bottom: 0; z-index: 3; grid-template-columns: 1fr auto; gap: .12rem .65rem; padding-block: .45rem .7rem; }
+  .seam-input { grid-row: 2; grid-column: 1 / -1; }
+  .seam-reset { grid-row: 1; grid-column: 2; }
+  .seam-control p { grid-column: 1 / -1; }
+}

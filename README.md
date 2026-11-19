@@ -14,6 +14,8 @@ A browser-native digital museum in three acts. Visitors cross a graphite thresho
 | Words That Refuse to Stay Still | Submit a phrase, then move the pointer, tap, or press Enter on the artwork. Choose Elastic, Fragment, or Liquid. |
 | The Room That Breathes | Look around with a pointer or the arrow keys, move the passage depth slider, and fold the corridor. |
 
+The Seam is a movable strain shared by the whole museum. Set it at the threshold and carry it into the sculpture, typography, and corridor. Clear it to restore the resting forms. [Read the 20-reference creative study](docs/creative-research.md).
+
 The exhibition index offers direct access to the three works. Hash links support browser history and room bookmarks. The closing sequence links back to the entrance.
 
 ## Development

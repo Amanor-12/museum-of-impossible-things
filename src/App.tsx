@@ -2,6 +2,8 @@ import { Component, lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
+import SeamControl from './experience/SeamControl'
+import { seamStrain } from './experience/seam'
 import WordArt from './experience/WordArt'
 import { behaviors, defaultPhrase, exhibits, formatPhrase, getRoom, materials, rooms } from './experience/catalog'
 import type { Behavior, Material, Room } from './experience/catalog'
@@ -35,6 +37,7 @@ export default function App() {
   const [phrase, setPhrase] = useState(defaultPhrase)
   const [draft, setDraft] = useState('')
   const [folded, setFolded] = useState(false)
+  const [seam, setSeam] = useState(0)
   const [depth, setDepth] = useState(0)
   const [capable, setCapable] = useState(webgl)
   const [visible, setVisible] = useState(() => !document.hidden)
@@ -126,7 +129,7 @@ export default function App() {
     localStorage.setItem('museum-motion', String(!motion))
   }
 
-  const fallback = <div className={`fallback fallback-${architecture ? 'room' : 'light'}`} role="img" aria-label={artwork} />
+  const fallback = <div className={`fallback fallback-${architecture ? 'room' : 'light'}`} style={{ translate: `${seamStrain(.46, arrival ? 0 : seam) * 7}%`, rotate: `${seamStrain(.63, arrival ? 0 : seam) * 12}deg` }} role="img" aria-label={artwork} />
 
   return <>
     <a className="skip" href="#gallery-heading" onClick={event => { event.preventDefault(); heading.current?.focus() }}>Skip to exhibition</a>
@@ -137,7 +140,7 @@ export default function App() {
     </header>
     <main ref={stage} className={`stage stage-${room}`}>
       <div className="stage-grid" aria-hidden="true" />
-      {room === 'words' ? <div className="gallery-art"><WordArt key={phrase} phrase={phrase} behavior={behavior} motion={motion} /></div> :
+      {room === 'words' ? <div className="gallery-art"><WordArt key={phrase} phrase={phrase} behavior={behavior} motion={motion} seam={seam} /></div> :
         <div className="gallery-art spatial" tabIndex={capable ? 0 : undefined} role="group" aria-label={`${artwork}. ${capable ? current.hint : 'Static artwork preview'}`}
           onPointerDown={event => {
             if (!capable) return
@@ -148,7 +151,7 @@ export default function App() {
             gesture.current.aimY = 0
           }} onKeyDown={keyboard}>
           {capable ? <RenderBoundary fallback={fallback}><Suspense fallback={fallback}>
-            <GalleryCanvas room={room} material={arrival ? 'Solid' : room === 'closing' ? 'Spectral' : material} folded={folded && room === 'room'} depth={room === 'room' ? depth : 0} motion={motion && !indexOpen} gesture={gesture} visible={visible && !indexOpen} />
+            <GalleryCanvas room={room} material={arrival ? 'Solid' : room === 'closing' ? 'Spectral' : material} folded={folded && room === 'room'} depth={room === 'room' ? depth : 0} motion={motion && !indexOpen} gesture={gesture} visible={visible && !indexOpen} seam={arrival ? 0 : seam} />
           </Suspense></RenderBoundary> : fallback}
         </div>}
       <div className="scene-copy" key={room}>
@@ -177,6 +180,7 @@ export default function App() {
       {current.hint && <span className="art-caption"><span aria-hidden="true">◎</span> {capable || room === 'words' ? current.hint : 'Static artwork preview'}</span>}
       <div className="plate-number" aria-hidden="true">{room === 'closing' ? 'END OF VISIT' : current.number + ' / 03'}</div>
     </main>
+    {!arrival && <SeamControl room={room} position={seam} setPosition={setSeam} />}
     <footer className="wayfinding">
       <button className="motion" aria-pressed={motion} onClick={toggleMotion}><span className={motion ? 'signal' : 'signal off'} />Motion {motion ? 'on' : 'off'}</button>
       <nav aria-label="Exhibition navigation">

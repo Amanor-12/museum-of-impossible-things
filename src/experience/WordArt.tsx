@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent } from 'react'
 import type { Behavior } from './catalog'
+import { seamStrain } from './seam'
 
-export default function WordArt({ phrase, behavior, motion }: { phrase: string; behavior: Behavior; motion: boolean }) {
+export default function WordArt({ phrase, behavior, motion, seam }: { phrase: string; behavior: Behavior; motion: boolean; seam: number }) {
   const [target, setTarget] = useState({ x: 0, y: 0 })
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timeout.current), [])
@@ -21,6 +22,7 @@ export default function WordArt({ phrase, behavior, motion }: { phrase: string; 
       activate(.85, -.7)
     }
   }
+  const sliced = behavior === 'Fragment' || seam > 0
   const force = Math.min(1, Math.hypot(target.x, target.y))
   const words = phrase.toLocaleUpperCase().split(' ')
   const split = words.length > 1 ? Math.ceil(words.length / 2) : 1
@@ -36,14 +38,14 @@ export default function WordArt({ phrase, behavior, motion }: { phrase: string; 
       </defs>
       <circle cx="410" cy="245" r="196" className="word-orbit" />
       <path d="M0 245H820M410 0V490" className="word-orbit" />
-      {Array.from({ length: behavior === 'Fragment' ? 12 : 1 }, (_, band) =>
-        <g key={band} clipPath={behavior === 'Fragment' ? `url(#slice-${band})` : undefined}
-          style={{ transformOrigin: 'center', transform: behavior === 'Fragment'
-            ? `translateX(${Math.sin(band * 11) * (6 + force * 49)}px)`
-            : behavior === 'Elastic' ? `skewX(${target.x * 17}deg) scaleY(${1 + target.y * .27})` : undefined }}>
-          {lines.map((line, i) => <text key={i} x="410" y={lines.length === 1 ? 282 : 210 + i * 126}
+      {Array.from({ length: sliced ? 12 : 1 }, (_, band) =>
+        <g key={band} clipPath={sliced ? `url(#slice-${band})` : undefined}
+          style={{ transformOrigin: 'center', transform: `translateX(${seamStrain((band + .5) / 12, seam) * 125 + (behavior === 'Fragment' ? Math.sin(band * 11) * (6 + force * 49) : 0)}px)` }}>
+          <g style={{ transformOrigin: 'center', transform: behavior === 'Elastic' ? `skewX(${target.x * 17}deg) scaleY(${1 + target.y * .27})` : undefined }}>
+            {lines.map((line, i) => <text key={i} x="410" y={lines.length === 1 ? 282 : 210 + i * 126}
             fontSize={Math.min(124, 1200 / line.length)} textAnchor="middle"
             filter={behavior === 'Liquid' ? 'url(#liquid)' : undefined}>{line}</text>)}
+          </g>
         </g>)}
     </svg>
   </button>

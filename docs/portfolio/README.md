@@ -33,3 +33,4 @@ Built and tested a React and TypeScript digital exhibition featuring procedural 
 - [Fluid state](fluid.jpg)
 - [Spectral state](spectral.jpg)
 - [Closing sequence](closing.jpg)
+- [The Seam on mobile](mobile-seam.jpg)

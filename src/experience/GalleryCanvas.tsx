@@ -3,20 +3,25 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { PerspectiveCamera } from '@react-three/drei'
 import * as THREE from 'three'
 import { materials, type Material, type Room } from './catalog'
+import { seamShader, seamStrain } from './seam'
 
 export type Gesture = { x: number; y: number; aimX: number; aimY: number }
-type SceneProps = { room: Room; material: Material; motion: boolean; folded: boolean; visible: boolean; depth: number; gesture: RefObject<Gesture> }
+type SceneProps = { room: Room; material: Material; motion: boolean; folded: boolean; visible: boolean; seam: number; depth: number; gesture: RefObject<Gesture> }
 
 const vertex = /* glsl */ `
-uniform float uTime, uMode, uForce;
+uniform float uTime, uMode, uForce, uSeam;
 varying vec3 vNormal, vWorld;
 varying vec2 vUv;
+varying float vStrain;
+${seamShader}
 void main() {
   vUv = uv;
   float flow = 1.0 - abs(uMode - 1.0);
   float wave = sin(uv.x * 25.1327 - uTime * 1.7 + uv.y * 6.2832)
     + .55 * sin(uv.x * 43.9823 + uTime * 1.1);
   vec3 p = position + normal * wave * (.125 * flow + .075 * uForce);
+  vStrain = seamStrain(clamp(.5 - position.y * .23, 0.0, 1.0), uSeam);
+  p += vec3(.82, .06, .42) * vStrain;
   p *= 1.0 + max(0.0, uMode - 1.0) * .065;
   vNormal = normalize(mat3(modelMatrix) * normal);
   vWorld = (modelMatrix * vec4(p, 1.0)).xyz;
@@ -27,6 +32,7 @@ const fragment = /* glsl */ `
 uniform float uMode;
 varying vec3 vNormal, vWorld;
 varying vec2 vUv;
+varying float vStrain;
 float panel(vec3 r, vec3 axis, float width, float blur) {
   return smoothstep(width - blur, width + blur, dot(r, normalize(axis)));
 }
@@ -47,6 +53,7 @@ void main() {
   float ghost = smoothstep(1.0, 2.0, uMode);
   vec3 spectrum = mix(vec3(.22,.45,.76), vec3(.7,.79,.47), .5 + .5 * sin(vUv.x * 18.85));
   c = mix(c, spectrum * (.13 + rim * .9 + bands * .16), ghost);
+  c += vec3(.27,.35,.15) * abs(vStrain);
   gl_FragColor = vec4(c, mix(1.0, .16 + rim * .73 + bands * .09, ghost));
 }`
 
@@ -87,13 +94,13 @@ function makeRibbon(segments: number, offset: number) {
   return geometry
 }
 
-function Sculpture({ gesture, motion, material, room }: SceneProps) {
+function Sculpture({ gesture, motion, material, room, seam }: SceneProps) {
   const group = useRef<THREE.Group>(null)
   const { size } = useThree()
   const segments = size.width < 680 ? 128 : 224
   const ribbons = useMemo(() => [-.265, 0, .265].map(offset => makeRibbon(segments, offset)), [segments])
   const shaders = useMemo(() => new THREE.ShaderMaterial({
-    uniforms: { uMode: { value: 0 }, uForce: { value: 0 }, uTime: { value: 0 } },
+    uniforms: { uMode: { value: 0 }, uForce: { value: 0 }, uTime: { value: 0 }, uSeam: { value: 0 } },
     vertexShader: vertex, fragmentShader: fragment, transparent: true, side: THREE.DoubleSide,
   }), [])
   useEffect(() => () => { ribbons.forEach(geometry => geometry.dispose()) }, [ribbons])
@@ -107,6 +114,7 @@ function Sculpture({ gesture, motion, material, room }: SceneProps) {
     const uniforms = firstRibbon.material.uniforms
     if (motion) uniforms.uTime.value += step
     const time = uniforms.uTime.value
+    uniforms.uSeam.value = damp(uniforms.uSeam.value, seam)
     uniforms.uMode.value = damp(uniforms.uMode.value, materials.indexOf(material))
     uniforms.uForce.value = damp(uniforms.uForce.value, Math.hypot(gesture.current.aimX, gesture.current.aimY) * .45)
     mesh.rotation.x = damp(mesh.rotation.x, -.21 + gesture.current.y + gesture.current.aimY * .14)
@@ -119,7 +127,7 @@ function Sculpture({ gesture, motion, material, room }: SceneProps) {
   </group>
 }
 
-function Architecture({ motion, gesture, depth, folded, room }: SceneProps) {
+function Architecture({ motion, gesture, depth, folded, room, seam }: SceneProps) {
   const group = useRef<THREE.Group>(null)
   const phase = useRef(0)
   const tunnel = useMemo(() => new THREE.RingGeometry(2.16, 4.25, 6, 1, Math.PI / 6), [])
@@ -135,11 +143,14 @@ function Architecture({ motion, gesture, depth, folded, room }: SceneProps) {
     camera.position.z = damp(camera.position.z, (room === 'threshold' ? .6 : 2.5) - depth * 7)
     camera.lookAt(0, 0, -20)
     group.current?.children.forEach((rib, i) => {
+      const strain = seamStrain(i / 15, seam)
       const breath = motion ? Math.sin(phase.current * 1.34 - i * .39) * .065 : 0
       rib.scale.setScalar(1 + breath)
-      rib.rotation.z = damp(rib.rotation.z, i * (folded ? .235 : .049) + breath)
-      rib.position.x = damp(rib.position.x, folded ? Math.sin(i * .3) * (i * .13) : 0)
+      rib.rotation.z = damp(rib.rotation.z, i * (folded ? .235 : .049) + breath + .42 * strain)
+      rib.position.x = damp(rib.position.x, (folded ? Math.sin(i * .3) * (i * .13) : 0) + strain * 1.24)
       rib.position.y = damp(rib.position.y, folded ? -i * .13 : 0)
+      const edge = rib.children[2] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
+      edge.material.color.set(i % 3 === 0 ? '#c8ef98' : '#68776b').multiplyScalar(1 + Math.abs(strain) * .72)
     })
   })
   return <>
@@ -186,7 +197,7 @@ export default function GalleryCanvas(props: SceneProps) {
   const maxDpr = Math.max(1, Math.min(devicePixelRatio, portrait ? 1.25 : 1.6))
   return <Canvas key={String(architectural)} frameloop={props.visible ? 'always' : 'never'} dpr={maxDpr} gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}>
     <RenderBudget maxDpr={maxDpr} />
-    <PerspectiveCamera makeDefault position={[0, 0, architectural ? 2.5 : 8.4]} fov={architectural ? 57 : portrait ? 42 : 38} near={.05} far={75} />
+    <PerspectiveCamera makeDefault position={[0, 0, props.room === 'threshold' ? 5.4 : architectural ? 2.5 : 8.4]} fov={architectural ? 57 : portrait ? 42 : 38} near={.05} far={75} />
     {architectural ? <Architecture {...props} /> : <Sculpture {...props} />}
   </Canvas>
 }
