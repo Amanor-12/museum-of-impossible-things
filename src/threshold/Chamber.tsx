@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { fragment, vertex } from './shaders'
+import { drawInscription } from './inscription'
 
 function compile(gl: WebGLRenderingContext, kind: number, source: string) {
   const shader = gl.createShader(kind)
@@ -19,7 +20,8 @@ function createScene(canvas: HTMLCanvasElement) {
   const fs = compile(gl, gl.FRAGMENT_SHADER, fragment)
   const program = gl.createProgram()
   const triangle = gl.createBuffer()
-  if (!program || !triangle) throw new Error('Could not allocate the scene')
+  const ink = gl.createTexture()
+  if (!program || !triangle || !ink) throw new Error('Could not allocate the scene')
   gl.attachShader(program, vs)
   gl.attachShader(program, fs)
   gl.linkProgram(program)
@@ -33,19 +35,26 @@ function createScene(canvas: HTMLCanvasElement) {
   gl.enableVertexAttribArray(position)
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0)
   const location = (name: string) => gl.getUniformLocation(program, name)
+  gl.bindTexture(gl.TEXTURE_2D, ink)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4))
+  gl.uniform1i(location('uInk'), 0)
   return {
-    gl, program, triangle,
+    gl, program, triangle, ink,
     size: location('uSize'), opening: location('uOpening'), quality: location('uQuality'),
     chapter: location('uChapter'), joint: location('uJoint'), gravity: location('uGravity'), light: location('uLight'),
   }
 }
 
-type SceneState = { opening: number; chapter: number; motion: boolean; changing: boolean; gravity: boolean; light: number }
+type SceneState = { opening: number; chapter: number; motion: boolean; changing: boolean; gravity: boolean; light: number; phrase: string }
 
-export default function Chamber({ opening, chapter, motion, changing, gravity, light }: SceneState) {
+export default function Chamber({ opening, chapter, motion, changing, gravity, light, phrase }: SceneState) {
   const element = useRef<HTMLCanvasElement>(null)
   const update = useRef<((state: SceneState) => void) | null>(null)
-  const initial = useRef({ opening, chapter, motion, changing, gravity, light })
+  const initial = useRef({ opening, chapter, motion, changing, gravity, light, phrase })
 
   useEffect(() => {
     const node = element.current
@@ -66,6 +75,8 @@ export default function Chamber({ opening, chapter, motion, changing, gravity, l
     let frame = 0, previous = 0, refineTimer = 0
     let resize = true, disabled = false, moving = false
     let detailReady = false
+    const inkCanvas = document.createElement('canvas')
+    let uploadedPhrase = ''
     const { gl } = scene
     const rendererInfo = gl.getExtension('WEBGL_debug_renderer_info')
     const renderer = rendererInfo ? String(gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL)) : ''
@@ -127,6 +138,12 @@ export default function Chamber({ opening, chapter, motion, changing, gravity, l
       gl.uniform1f(scene.chapter, currentChapter)
       gl.uniform1f(scene.gravity, currentGravity)
       gl.uniform1f(scene.light, currentLight)
+      if (state.chapter >= 2 && state.phrase !== uploadedPhrase) {
+        drawInscription(inkCanvas, state.phrase)
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, inkCanvas)
+        uploadedPhrase = state.phrase
+      }
       gl.drawArrays(gl.TRIANGLES, 0, 3)
       canvas.dataset.rendered = 'true'
       if (!state.changing && live) schedule()
@@ -138,6 +155,7 @@ export default function Chamber({ opening, chapter, motion, changing, gravity, l
     observer.observe(canvas)
     document.addEventListener('visibilitychange', schedule)
     canvas.addEventListener('webglcontextlost', lost)
+    void document.fonts.ready.then(() => { uploadedPhrase = ''; schedule() })
     schedule()
     return () => {
       cancelAnimationFrame(frame)
@@ -147,11 +165,13 @@ export default function Chamber({ opening, chapter, motion, changing, gravity, l
       canvas.removeEventListener('webglcontextlost', lost)
       gl.deleteBuffer(scene.triangle)
       gl.deleteProgram(scene.program)
+      gl.deleteTexture(scene.ink)
+      disabled = true
       update.current = null
     }
   }, [])
 
-  useEffect(() => { update.current?.({ opening, chapter, motion, changing, gravity, light }) }, [opening, chapter, motion, changing, gravity, light])
+  useEffect(() => { update.current?.({ opening, chapter, motion, changing, gravity, light, phrase }) }, [opening, chapter, motion, changing, gravity, light, phrase])
 
   return <canvas className="threshold-canvas" ref={element} aria-hidden="true" />
 }

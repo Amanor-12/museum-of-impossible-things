@@ -11,7 +11,7 @@ const archive = import.meta.env.BASE_URL + '?archive'
 const artwork = [
   'Two graphite walls meet at a fault. Warm light falls through the opening onto the floor.',
   'The parted walls reveal a concrete passage with offset arches and a suspended stone.',
-  'A sentence projected across two halves of the chamber follows the displacement of the walls.',
+  'An inscription on the back of the graphite walls breaks where the walls part.',
   'The displaced corridor rotates around its vanishing point.',
   'The corridor tilts back into view, with the sentence you left behind.',
 ]
@@ -126,7 +126,7 @@ export default function Threshold() {
     <main className="threshold-main">
       <figure className="threshold-art" aria-label={artwork[chapter]}>
         <div className="threshold-fallback"><span /><span /></div>
-        <Chamber opening={opening} chapter={chapter} changing={changing} motion={motion && !index} gravity={inverted} light={light / 2} />
+        <Chamber opening={opening} chapter={chapter} changing={changing} motion={motion && !index} gravity={inverted} light={light / 2} phrase={phrase} />
       </figure>
       <div className="threshold-shading" aria-hidden="true" />
       {(chapter === 2 || chapter === 4) && <div className="wall-inscription" aria-hidden="true">
@@ -157,6 +157,10 @@ export default function Threshold() {
           <button type="submit">Leave it</button></div>
           <p className="sr-only" role="status">{phrase}</p>
         </form>}
+        {(chapter === 2 || chapter === 4) && <details className="inscription-transcript">
+          <summary>Read the inscription</summary>
+          <p>{phrase}</p>
+        </details>}
         {chapter === 3 && <button className="gravity-control" aria-pressed={inverted} onClick={() => setInverted(value => !value)}>{inverted ? 'Restore gravity' : 'Invert gravity'}<span aria-hidden="true">↻</span></button>}
         {chapter === 4 && <div className="field-record">
           <dl aria-label="Visit record">
@@ -166,7 +170,6 @@ export default function Threshold() {
           </dl>
           <button type="button" disabled={exportState === 'writing'} onClick={exportPrint}>{exportState === 'writing' ? 'Preparing your print…' : 'Download your field record'}</button>
           <p role="status">{exportState === 'sent' ? 'Your print is ready.' : exportState === 'error' ? 'The print could not be created. Try again.' : ''}</p>
-          <p className="sr-only">Your inscription: {phrase}</p>
         </div>}
       </section>
       {chapter === 0 && <div className="fault-interface" data-dragging={changing}>

@@ -7,6 +7,7 @@ The visitor pulls a real-time fault open, moves through the same architecture, t
 - [Threshold](threshold-v2.jpg)
 - [Displaced room](passage-v2.jpg)
 - [Inscription](inscription-v2.jpg)
+- [Mobile inscription and transcript](inscription-mobile.jpg)
 - [Inversion](inversion.jpg)
 - [Return](return-v2.jpg)
 - [Recorded walkthrough](threshold-walkthrough.webm)

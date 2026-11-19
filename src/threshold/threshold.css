@@ -160,6 +160,7 @@ body { margin:0; }
   color:#e9ca9e;
 }
 .wall-inscription span { position:absolute; width:100%; overflow-wrap:anywhere; display:block; }
+.threshold-main:has(.threshold-canvas[data-rendered]) .wall-inscription { display:none; }
 .wall-inscription span:first-child { clip-path:polygon(0 0,48% 0,50% 37%,46% 62%,49% 100%,0 100%); translate:calc(var(--opening) * -3.6%) calc(var(--opening) * -13px); }
 .wall-inscription span:last-child { clip-path:polygon(48% 0,100% 0,100% 100%,49% 100%,46% 62%,50% 37%); translate:calc(var(--opening) * 5.4%) calc(var(--opening) * 19px); color:#f4dfbd; }
 .act-4 .wall-inscription { inset:27% 9% auto 57%; opacity:.6; font-size:clamp(2.2rem,4vw,5rem); transform:perspective(480px) rotateY(-19deg); }
@@ -180,6 +181,10 @@ body { margin:0; }
 .field-record dt { font-size:.7rem; text-transform:uppercase; letter-spacing:.095em; color:var(--muted); }
 .field-record dd { margin:.32rem 0 0; font-size:.9rem; color:var(--brass); }
 .field-record p[role=status] { margin:.35rem 0 0; font-size:.8rem; color:var(--brass); }
+.inscription-transcript { margin-top:1rem; width:min(100%,330px); }
+.inscription-transcript summary { cursor:pointer; width:fit-content; color:var(--brass); font-size:.85rem; }
+.inscription-transcript summary:focus-visible { outline:2px solid var(--brass); outline-offset:4px; }
+.inscription-transcript p { margin:.5rem 0 0; padding:.7rem .8rem; border-left:1px solid var(--brass); background:#141210e8; overflow-wrap:anywhere; }
 .threshold-directory { margin:0 0 0 auto; height:100%; max-height:none; width:min(540px,100vw); max-width:none; padding:clamp(24px,4vw,55px); background:#ede8de; color:#232220; border:0; }
 .threshold-directory::backdrop { background:#10100fbe; }
 .threshold-directory :is(button,a):focus-visible { outline-color:#5f3e24; }

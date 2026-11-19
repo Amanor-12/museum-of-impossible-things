@@ -12,6 +12,7 @@ uniform float uJoint;
 uniform float uGravity;
 uniform float uQuality;
 uniform float uLight;
+uniform sampler2D uInk;
 
 #define FAR 45.0
 #define EPS .004
@@ -143,6 +144,18 @@ vec3 lightScene(vec3 p, vec3 n, float id, vec3 rd) {
       color += bone*pow(max(0.0,dot(reflected,normalize(vec3(-.8,.6,.31)))),7.0)*.52;
     }
   }
+  if (slab > .5 && n.z < -.75) {
+    float rightSide = step(3.5, id);
+    float wallX = p.x + (1.0-2.0*rightSide)*(gap()-.13);
+    float muralLayout = smoothstep(.57,1.10,uSize.x/uSize.y);
+    float muralWidth = mix(2.9,4.65,muralLayout);
+    float muralHeight = mix(3.05,2.28,muralLayout);
+    vec2 inkUV = vec2(.5-(wallX-.22)/muralWidth, (p.y-rightSide*uOpening*.17-muralHeight)/2.10);
+    if (all(greaterThan(inkUV,vec2(0.0))) && all(lessThan(inkUV,vec2(1.0)))) {
+      float mask = texture2D(uInk,inkUV).a;
+      color = mix(color, bone*(.55+sideLight*.27+broad*.13),mask*.91);
+    }
+  }
   return color;
 }
 
@@ -154,15 +167,20 @@ void main() {
   float inscription = smoothstep(1.0,2.0,uChapter);
   float inversion = smoothstep(2.0,3.0,uChapter);
   float exitShot = smoothstep(3.0,4.0,uChapter);
+  float reading = inscription*(1.0-inversion);
   float mobile = 1.0-smoothstep(.63,1.0,aspect);
-  vec3 ro = vec3(mix(-1.46,.27,inside)+inscription*.76-inversion*.86+exitShot*.32, 1.78+mobile*.24+inversion*.72-exitShot*.29, mix(8.1,-2.38,inside)-inscription*1.88-inversion*.66-exitShot*.17);
+  float readingDistance = reading*(1.32+mobile*1.75) + exitShot*(.85+mobile*1.6);
+  vec3 ro = vec3(mix(-1.46,.27,inside)+inscription*.76-inversion*.86+exitShot*.32-reading*.48, 1.78+mobile*.24+inversion*.72-exitShot*.29+reading*.48, mix(8.1,-2.38,inside)-inscription*1.88-inversion*.66-exitShot*.17-readingDistance);
   vec3 target = vec3(.0,2.52+mobile*.19,mix(-.18,-18.0,inside));
   vec3 fwd = normalize(target-ro);
-  fwd.xz = turn(3.15*exitShot) * fwd.xz;
+  fwd.xz = turn(3.15*exitShot + 3.13*reading) * fwd.xz;
+  fwd.y += reading*(.21-mobile*.14) + exitShot*(.15-mobile*.09);
+  fwd = normalize(fwd);
   vec3 side = normalize(cross(fwd,vec3(0,1,0)));
   vec3 up = cross(side,fwd);
   uv = turn(3.14159*uGravity) * uv;
-  vec3 rd = normalize(fwd*(1.78+mobile*.23)+side*uv.x+up*uv.y);
+  float focalLength = 1.78+mobile*(.23-.48*(reading+exitShot));
+  vec3 rd = normalize(fwd*focalLength+side*uv.x+up*uv.y);
   float t=.03, id=0.0;
   for(int i=0;i<112;i++){
     if(uQuality<.5 && i==60) break;
